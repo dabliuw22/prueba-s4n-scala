@@ -4,11 +4,13 @@ import cats.effect.Async
 import cats.syntax.functor._
 import com.s4n.core.Dsl.{Coordinates, Drone, eval}
 import com.s4n.delivery.management.domain.DeliveryRepository
+import com.s4n.delivery.management.application.config.DeliveryConfig
 import com.s4n.location.management.application.LocationService
 import fs2.Stream
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 
 final class DefaultDeliveryService[F[_]: Async] private (
+  val config: DeliveryConfig.Config,
   val repository: DeliveryRepository[F],
   val location: LocationService[F]
 ) extends DeliveryService[F] {
@@ -25,7 +27,7 @@ final class DefaultDeliveryService[F[_]: Async] private (
       .flatMap(location.save)
 
   private def evalDrone(drone: Drone): F[Drone] =
-    if (drone.routes.length > 3)
+    if (drone.routes.length > config.limit)
       Async[F].raiseError[Drone](new RuntimeException("Invalid File Length"))
     else Async[F].pure(drone)
 
@@ -38,8 +40,8 @@ final class DefaultDeliveryService[F[_]: Async] private (
   }
 
   private def evalCoordinates(coordinates: Coordinates): Boolean =
-    (coordinates.x.value <= 10 || coordinates.x.value >= -10
-      || coordinates.y.value <= 10 || coordinates.y.value >= -10)
+    (coordinates.x.value <= config.range || coordinates.x.value >= -config.range
+      || coordinates.y.value <= config.range || coordinates.y.value >= -config.range)
 
   private def errorHandler(error: Throwable): Stream[F, Drone] =
     Stream.eval(logger.error(s"Error: $error")) >> Stream.empty
@@ -48,8 +50,9 @@ final class DefaultDeliveryService[F[_]: Async] private (
 object DefaultDeliveryService {
 
   def make[F[_]: Async](
+    config: DeliveryConfig.Config,
     repository: DeliveryRepository[F],
     location: LocationService[F]
   ): F[DeliveryService[F]] =
-    Async[F].delay(new DefaultDeliveryService(repository, location))
+    Async[F].delay(new DefaultDeliveryService(config, repository, location))
 }

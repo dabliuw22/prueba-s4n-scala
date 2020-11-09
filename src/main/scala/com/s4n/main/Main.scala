@@ -4,6 +4,7 @@ import cats.effect.{Blocker, ExitCode, IO, IOApp}
 import com.s4n.delivery.management.adapter.config.DeliveryRepositoryConfig
 import com.s4n.delivery.management.adapter.DefaultDeliveryRepository
 import com.s4n.delivery.management.application.DefaultDeliveryService
+import com.s4n.delivery.management.application.config.DeliveryConfig
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import com.s4n.infrastructure.file.DefaultFiles
 import com.s4n.location.management.adapter.config.LocationRepositoryConfig
@@ -28,7 +29,9 @@ object Main extends IOApp {
           location <- DefaultLocationService.make[IO](locationRepo)
           deliveryRepo <- DefaultDeliveryRepository
                             .make[IO](in)
-          delivery <- DefaultDeliveryService.make[IO](deliveryRepo, location)
+          config <- DeliveryConfig.config.load[IO]
+          delivery <-
+            DefaultDeliveryService.make[IO](config, deliveryRepo, location)
           _ <- delivery.run.compile.drain
           _ <- logger.info("End..")
         } yield ExitCode.Success
