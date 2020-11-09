@@ -23,7 +23,7 @@ package object file {
   case class FileName(value: String)
 
   @typeclass
-  sealed trait Files[F[_]] {
+  trait Files[F[_]] {
     def create(directory: Directory): F[Path]
     def write(directory: Directory, file: File): Stream[F, Unit]
     def read(maxConcurrent: Int = 1)(directory: Directory): Stream[F, File]
