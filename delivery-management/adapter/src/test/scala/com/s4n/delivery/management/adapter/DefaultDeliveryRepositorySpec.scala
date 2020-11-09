@@ -16,9 +16,7 @@ final class DefaultDeliveryRepositorySpec extends EffectSpec {
       implicit val files = success
       val effect = for {
         location <- DefaultDeliveryRepository.make[IO](config)
-        result <- location.findAll
-          .compile
-          .toList
+        result <- location.findAll.compile.toList
         routes = List(Init(A(End())))
       } yield assertResult(Drone("test.txt", routes))(result.head)
       effect.unsafeToFuture()
@@ -28,13 +26,17 @@ final class DefaultDeliveryRepositorySpec extends EffectSpec {
   private def config: DeliveryRepositoryConfig.Config =
     DeliveryRepositoryConfig.Config(Directory("test/"), 1)
 
-  private def success: Files[IO] = new Files[IO] {
-    override def create(directory: Directory): IO[Path] =
-      IO { Paths.get("test/") }
+  private def success: Files[IO] =
+    new Files[IO] {
+      override def create(directory: Directory): IO[Path] =
+        IO { Paths.get("test/") }
 
-    override def write(directory: Directory, file: File): Stream[IO, Unit] = ???
+      override def write(directory: Directory, file: File): Stream[IO, Unit] =
+        ???
 
-    override def read(maxConcurrent: Int)(directory: Directory): Stream[IO, File] =
-      Stream.emit(File(FileName("test.txt"), List(Line("A"))))
-  }
+      override def read(
+        maxConcurrent: Int
+      )(directory: Directory): Stream[IO, File] =
+        Stream.emit(File(FileName("test.txt"), List(Line("A"))))
+    }
 }

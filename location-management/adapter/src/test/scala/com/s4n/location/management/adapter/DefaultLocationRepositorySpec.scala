@@ -17,9 +17,9 @@ final class DefaultLocationRepositorySpec extends EffectSpec {
       val effect = for {
         location <- DefaultLocationRepository.make[IO](config)
         result <- location
-          .save(Drone("test-drone", List(Init(A(A(End()))))))
-          .compile
-          .toList
+                    .save(Drone("test-drone", List(Init(A(A(End()))))))
+                    .compile
+                    .toList
         status = result.size == 1
       } yield assert(status)
       effect.unsafeToFuture()
@@ -31,10 +31,11 @@ final class DefaultLocationRepositorySpec extends EffectSpec {
       implicit val files = success
       val effect = for {
         location <- DefaultLocationRepository.make[IO](config)
-        result <- location
-          .save(Drone("test-drone", List(Init(A(A(End()))), Init(A(End())))))
-          .compile
-          .toList
+        result <-
+          location
+            .save(Drone("test-drone", List(Init(A(A(End()))), Init(A(End())))))
+            .compile
+            .toList
         status = result.size == 2
       } yield assert(status == true)
       effect.unsafeToFuture()
@@ -47,11 +48,11 @@ final class DefaultLocationRepositorySpec extends EffectSpec {
       val effect = for {
         location <- DefaultLocationRepository.make[IO](config)
         status <- location
-          .save(Drone("test-drone", List(Init(A(A(End()))))))
-          .map(_ => false)
-          .compile
-          .toList
-          .handleErrorWith(_ => IO(true))
+                    .save(Drone("test-drone", List(Init(A(A(End()))))))
+                    .map(_ => false)
+                    .compile
+                    .toList
+                    .handleErrorWith(_ => IO(true))
       } yield assert(status == true)
       effect.unsafeToFuture()
     }
@@ -60,25 +61,30 @@ final class DefaultLocationRepositorySpec extends EffectSpec {
   private def config: LocationRepositoryConfig.Config =
     LocationRepositoryConfig.Config(Directory("/test"))
 
-  private def success: Files[IO] = new Files[IO] {
-    override def create(directory: Directory): IO[Path] = ???
+  private def success: Files[IO] =
+    new Files[IO] {
+      override def create(directory: Directory): IO[Path] = ???
 
-    override def write(directory: Directory, file: File): Stream[IO, Unit] =
-      Stream.emits(file.lines)
-        .map(_ => ())
-        .covary[IO]
+      override def write(directory: Directory, file: File): Stream[IO, Unit] =
+        Stream
+          .emits(file.lines)
+          .map(_ => ())
+          .covary[IO]
 
-    override def read(maxConcurrent: Int)(directory: Directory):
-      Stream[IO, File] = ???
-  }
+      override def read(maxConcurrent: Int)(
+        directory: Directory
+      ): Stream[IO, File] = ???
+    }
 
-  private def failure: Files[IO] = new Files[IO] {
-    override def create(directory: Directory): IO[Path] = ???
+  private def failure: Files[IO] =
+    new Files[IO] {
+      override def create(directory: Directory): IO[Path] = ???
 
-    override def write(directory: Directory, file: File): Stream[IO, Unit] =
-      Stream.raiseError[IO](new RuntimeException)
+      override def write(directory: Directory, file: File): Stream[IO, Unit] =
+        Stream.raiseError[IO](new RuntimeException)
 
-    override def read(maxConcurrent: Int)(directory: Directory):
-    Stream[IO, File] = ???
-  }
+      override def read(maxConcurrent: Int)(
+        directory: Directory
+      ): Stream[IO, File] = ???
+    }
 }
