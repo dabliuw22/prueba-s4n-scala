@@ -2,12 +2,13 @@
 
 ### Description
 
-In the solution, a modularized application is designed, where: 
-**core:** is an internal *DSL* that represents the actions and evaluations of the drone.
-**infrastructure/file:** Is the layer that allows us to write and read files.
-**location-management:** Is the subdomain in charge of registering the positions of a drone.
-**delivery-management:** Is the subdomain responsible for order delivery.
-**test:** Contains utilities for testing
+
+In the solution, a modularized application is designed, using *typeclasses* and *tagless-final*, where: 
+1. **core:** is an internal *DSL* that represents the actions and evaluations of the drone.
+2. **infrastructure/file:** Is the layer that allows us to write and read files.
+3. **location-management:** Is the subdomain in charge of registering the positions of a drone.
+4. **delivery-management:** Is the subdomain responsible for order delivery.
+5. **test:** Contains utilities for testing
 
 ### Requirements:
     * JDK >= 1.8
