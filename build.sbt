@@ -222,7 +222,15 @@ lazy val test = (project in file("test"))
   .settings(
     name := "test",
     scalacOptions ++= options,
-    libraryDependencies += scalaTest
+    libraryDependencies ++= (
+      Seq(
+        cats("cats-macros"),
+        cats("cats-kernel"),
+        cats("cats-core"),
+        cats("cats-effect"),
+        fs2("fs2-core"),
+        scalaTest
+      ))
   )
 
 lazy val infrastructure = (project in file("infrastructure"))
