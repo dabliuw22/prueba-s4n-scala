@@ -40,8 +40,8 @@ final class DefaultDeliveryService[F[_]: Async] private (
   }
 
   private def evalCoordinates(coordinates: Coordinates): Boolean =
-    (coordinates.x.value <= config.range || coordinates.x.value >= -config.range
-      || coordinates.y.value <= config.range || coordinates.y.value >= -config.range)
+    (coordinates.x.value <= config.range && coordinates.x.value >= -config.range
+      && coordinates.y.value <= config.range && coordinates.y.value >= -config.range)
 
   private def errorHandler(error: Throwable): Stream[F, Drone] =
     Stream.eval(logger.error(s"Error: $error")) >> Stream.empty
