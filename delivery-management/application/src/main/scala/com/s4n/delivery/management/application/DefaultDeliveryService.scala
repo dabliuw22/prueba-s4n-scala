@@ -1,6 +1,6 @@
 package com.s4n.delivery.management.application
 
-import cats.effect.Async
+import cats.effect.{Async, ContextShift}
 import cats.syntax.functor._
 import com.s4n.core.Dsl.{Coordinates, Drone, eval}
 import com.s4n.delivery.management.domain.DeliveryRepository
@@ -9,7 +9,7 @@ import com.s4n.location.management.application.LocationService
 import fs2.Stream
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 
-final class DefaultDeliveryService[F[_]: Async] private (
+final class DefaultDeliveryService[F[_]: Async: ContextShift] private (
   val config: DeliveryConfig.Config,
   val repository: DeliveryRepository[F],
   val location: LocationService[F]
@@ -18,13 +18,14 @@ final class DefaultDeliveryService[F[_]: Async] private (
   private val logger =
     Slf4jLogger.getLoggerFromClass[F](this.getClass)
 
-  override def run: Stream[F, Unit] =
+  override def run: Stream[F, Unit] = {
     repository.findAll
       .evalMap(evalDrone)
       .map(evalRange)
       .handleErrorWith(errorHandler)
       .evalMap(drone => logger.info(s"Drone: $drone").as(drone))
       .flatMap(location.save)
+  }
 
   private def evalDrone(drone: Drone): F[Drone] =
     if (drone.routes.length > config.limit)
