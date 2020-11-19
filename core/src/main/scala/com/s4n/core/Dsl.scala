@@ -47,7 +47,6 @@ object Dsl {
   @tailrec
   private def makeRouteR(chars: List[Char])(route: Route = End()): Route =
     chars match {
-      case Nil => route
       case h :: t =>
         h match {
           case 'A' => makeRouteR(t)(A(route))
@@ -55,6 +54,7 @@ object Dsl {
           case 'D' => makeRouteR(t)(D(route))
           case _   => throw new RuntimeException("Invalid Char Input")
         }
+      case Nil => route
     }
 
   @tailrec
