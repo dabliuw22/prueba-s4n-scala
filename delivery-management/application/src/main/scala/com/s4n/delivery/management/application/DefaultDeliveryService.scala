@@ -1,6 +1,6 @@
 package com.s4n.delivery.management.application
 
-import cats.effect.{Async, ContextShift}
+import cats.effect.Async
 import cats.syntax.functor._
 import com.s4n.core.Dsl.{Coordinates, Drone, eval}
 import com.s4n.delivery.management.domain.DeliveryRepository
@@ -9,7 +9,7 @@ import com.s4n.location.management.application.LocationService
 import fs2.Stream
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 
-final class DefaultDeliveryService[F[_]: Async: ContextShift] private (
+final class DefaultDeliveryService[F[_]: Async] private (
   val config: DeliveryConfig.Config,
   val repository: DeliveryRepository[F],
   val location: LocationService[F]

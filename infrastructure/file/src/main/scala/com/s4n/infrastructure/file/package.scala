@@ -2,7 +2,6 @@ package com.s4n.infrastructure
 
 import java.nio.file.{Path, Paths}
 
-import cats.Applicative
 import cats.data.Kleisli
 import cats.syntax.flatMap._
 import cats.syntax.functor._
@@ -29,7 +28,16 @@ package object file {
     def read(maxConcurrent: Int = 1)(directory: Directory): Stream[F, File]
   }
 
-  final class DefaultFiles[F[_]: Sync: ContextShift: Concurrent] private (
+  object Files {
+    def makeResource[F[_]: Sync: ContextShift: Concurrent](
+      blocker: Blocker
+    ): Resource[F, Files[F]] =
+      DefaultFiles.makeResource[F](blocker)
+  }
+
+  private final class DefaultFiles[
+    F[_]: Sync: ContextShift: Concurrent
+  ] private (
     val blocker: Blocker
   ) extends Files[F] {
 
@@ -89,14 +97,14 @@ package object file {
       )
   }
 
-  object DefaultFiles {
+  private object DefaultFiles {
 
     private def make[F[_]: Sync: ContextShift: Concurrent](
       blocker: Blocker
     ): F[Files[F]] =
       Sync[F].delay(new DefaultFiles[F](blocker))
 
-    def makeResource[F[_]: Sync: ContextShift: Concurrent: Applicative](
+    def makeResource[F[_]: Sync: ContextShift: Concurrent](
       blocker: Blocker
     ): Resource[F, Files[F]] =
       Resource.liftF(make[F](blocker))

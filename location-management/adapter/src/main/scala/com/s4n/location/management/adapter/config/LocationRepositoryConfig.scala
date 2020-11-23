@@ -17,7 +17,7 @@ object LocationRepositoryConfig {
   val config: ConfigValue[Config] =
     env("OUT_PATH")
       .as[OutPath]
-      .default("/tmp/out")
+      .default("/Users/will/Desktop/out")
       .map(_.value)
       .map(Directory)
       .map(Config)

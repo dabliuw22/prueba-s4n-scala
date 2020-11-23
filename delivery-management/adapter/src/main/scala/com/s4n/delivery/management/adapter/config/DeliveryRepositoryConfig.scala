@@ -24,7 +24,7 @@ object DeliveryRepositoryConfig {
     (
       env("IN_PATH")
         .as[InPath]
-        .default("/tmp/in")
+        .default("/Users/will/Desktop/in")
         .map(_.value)
         .map(Directory),
       env("DELIVERY_MAX_CONCURRENT")
