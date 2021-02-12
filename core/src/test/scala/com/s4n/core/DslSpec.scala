@@ -58,7 +58,7 @@ final class DslSpec extends Spec {
   }
 
   "eval(AAIADAD)" should {
-    "Return (-1, 3) East" in {
+    "Return (-1, 3) West" in {
       val route = Init(A(A(I(A(D(A(D(End()))))))))
       val expected = Position(Coordinates(X(-1), Y(3)), West)
       eval(route) shouldBe expected

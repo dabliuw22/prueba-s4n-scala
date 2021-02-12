@@ -17,11 +17,11 @@ final class DefaultLocationRepository[F[_]: Async: Files] private (
   private def file(drone: Drone): File =
     File(
       FileName("out" + drone.name),
-      drone.routes
+      drone.cmds
         .map(eval)
         .map(view)
         .map(_ + "\n")
-        .map(Line)
+        .map(Line(_))
     )
 
   private def view(position: Position): String =

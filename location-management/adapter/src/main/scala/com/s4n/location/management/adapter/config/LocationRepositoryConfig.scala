@@ -19,6 +19,6 @@ object LocationRepositoryConfig {
       .as[OutPath]
       .default("/Users/will/Desktop/out")
       .map(_.value)
-      .map(Directory)
+      .map(Directory(_))
       .map(Config)
 }

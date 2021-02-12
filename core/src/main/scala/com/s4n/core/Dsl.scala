@@ -21,31 +21,31 @@ object Dsl {
     direction: Direction = North
   )
 
-  sealed trait Route
-  case class Init(next: Route) extends Route
+  sealed trait Cmd
+  case class Init(next: Cmd) extends Cmd
   case class End(
     previous: Option[Position] = None
-  ) extends Route
+  ) extends Cmd
   case class A(
-    next: Route,
+    next: Cmd,
     previous: Option[Position] = None
-  ) extends Route
+  ) extends Cmd
   case class I(
-    next: Route,
+    next: Cmd,
     previous: Option[Position] = None
-  ) extends Route
+  ) extends Cmd
   case class D(
-    next: Route,
+    next: Cmd,
     previous: Option[Position] = None
-  ) extends Route
+  ) extends Cmd
 
-  case class Drone(name: String, routes: List[Route])
+  case class Drone(name: String, cmds: List[Cmd])
 
-  def makeRoute(route: String): Route =
+  def makeRoute(route: String): Cmd =
     Init(makeRouteR(route.toList.reverse)())
 
   @tailrec
-  private def makeRouteR(chars: List[Char])(route: Route = End()): Route =
+  private def makeRouteR(chars: List[Char])(route: Cmd = End()): Cmd =
     chars match {
       case h :: t =>
         h match {
@@ -58,7 +58,7 @@ object Dsl {
     }
 
   @tailrec
-  def eval(action: Route): Position =
+  def eval(action: Cmd): Position =
     action match {
       case Init(n)     => eval(update(n, Position()))
       case a @ A(n, p) => eval(update(n, calculate(a, p.get)))
@@ -68,9 +68,9 @@ object Dsl {
     }
 
   private def update(
-    action: Route,
+    action: Cmd,
     previous: Position
-  ): Route =
+  ): Cmd =
     action match {
       case A(next, _) => A(next, Some(previous))
       case I(next, _) => I(next, Some(previous))
@@ -80,7 +80,7 @@ object Dsl {
     }
 
   private def calculate(
-    action: Route,
+    action: Cmd,
     previous: Position
   ): Position =
     previous match {
@@ -94,7 +94,7 @@ object Dsl {
     }
 
   private def fromNorth(
-    action: Route,
+    action: Cmd,
     previous: Coordinates
   ): Position =
     action match {
@@ -106,7 +106,7 @@ object Dsl {
     }
 
   private def fromSouth(
-    action: Route,
+    action: Cmd,
     previous: Coordinates
   ): Position =
     action match {
@@ -118,7 +118,7 @@ object Dsl {
     }
 
   private def fromWest(
-    action: Route,
+    action: Cmd,
     previous: Coordinates
   ): Position =
     action match {
@@ -130,7 +130,7 @@ object Dsl {
     }
 
   private def fromEast(
-    action: Route,
+    action: Cmd,
     previous: Coordinates
   ): Position =
     action match {

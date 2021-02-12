@@ -16,5 +16,6 @@ object Dependencies {
   lazy val simulacrum: ModuleID = "org.typelevel" %% "simulacrum" % "1.0.1"
   lazy val scalaTest: ModuleID = "org.scalatest" %% "scalatest" % "3.0.8"
   lazy val scalaCheck: ModuleID = "org.scalacheck" %% "scalacheck" % "1.14.3"
-  lazy val scalaTestPlus: ModuleID = "org.scalatestplus" %% "scalacheck-1-14" % "3.1.0.1"
+  lazy val scalaTestPlus: ModuleID =
+    "org.scalatestplus" %% "scalacheck-1-14" % "3.1.0.1"
 }

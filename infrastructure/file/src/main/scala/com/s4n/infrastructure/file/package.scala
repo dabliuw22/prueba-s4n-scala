@@ -6,6 +6,7 @@ import cats.data.Kleisli
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.effect.{Blocker, Concurrent, ContextShift, Resource, Sync}
+import io.estatico.newtype.macros.newtype
 import simulacrum.typeclass
 import fs2.io.file._
 import fs2.text._
@@ -13,13 +14,10 @@ import fs2.Stream
 
 package object file {
 
-  case class Directory(path: String)
-
-  case class Line(value: String)
-
+  @newtype case class Directory(path: String)
+  @newtype case class Line(value: String)
+  @newtype case class FileName(value: String)
   case class File(name: FileName, lines: List[Line])
-
-  case class FileName(value: String)
 
   @typeclass
   trait Files[F[_]] {
@@ -75,7 +73,7 @@ package object file {
         .through(utf8Decode)
         .through(lines)
         .filter(_.nonEmpty)
-        .map(Line)
+        .map(Line(_))
         .compile
         .toList
         .map(lines => (getName(path), lines))

@@ -28,16 +28,16 @@ final class DefaultDeliveryService[F[_]: Async] private (
   }
 
   private def evalDrone(drone: Drone): F[Drone] =
-    if (drone.routes.length > config.limit)
+    if (drone.cmds.length > config.limit)
       Async[F].raiseError[Drone](new RuntimeException("Invalid File Length"))
     else Async[F].pure(drone)
 
   private def evalRange(drone: Drone): Drone = {
-    val routes = drone.routes
+    val routes = drone.cmds
       .map(route => (eval(route), route))
       .filter(tuple => evalCoordinates(tuple._1.coordinates))
       .map(_._2)
-    drone.copy(routes = routes)
+    drone.copy(cmds = routes)
   }
 
   private def evalCoordinates(coordinates: Coordinates): Boolean =
