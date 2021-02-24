@@ -5,10 +5,10 @@ import com.s4n.test.Spec
 
 final class DslSpec extends Spec {
 
-  "makeRoute(AAAAIAA)" should {
+  "makeCmd(AAAAIAA)" should {
     "Return Init(A(A(A(A(I(A(A(End()))))))))" in {
       val expected = Init(A(A(A(A(I(A(A(End()))))))))
-      makeRoute("AAAAIAA") shouldBe expected
+      makeCmd("AAAAIAA") shouldBe expected
     }
   }
 
@@ -20,10 +20,10 @@ final class DslSpec extends Spec {
     }
   }
 
-  "makeRoute(AADADA)" should {
+  "makeCmd(AADADA)" should {
     "Return Init(A(A(D(A(D(A(End())))))))" in {
       val expected = Init(A(A(D(A(D(A(End())))))))
-      makeRoute("AADADA") shouldBe expected
+      makeCmd("AADADA") shouldBe expected
     }
   }
 
@@ -35,10 +35,10 @@ final class DslSpec extends Spec {
     }
   }
 
-  "makeRoute(DDDAIAD)" should {
+  "makeCmd(DDDAIAD)" should {
     "Return Init(D(D(D(A(I(A(D(End()))))))))" in {
       val expected = Init(D(D(D(A(I(A(D(End()))))))))
-      makeRoute("DDDAIAD") shouldBe expected
+      makeCmd("DDDAIAD") shouldBe expected
     }
   }
 
@@ -50,10 +50,10 @@ final class DslSpec extends Spec {
     }
   }
 
-  "makeRoute(AAIADAD)" should {
+  "makeCmd(AAIADAD)" should {
     "Return Init(A(A(I(A(D(A(D(End()))))))))" in {
       val expected = Init(A(A(I(A(D(A(D(End()))))))))
-      makeRoute("AAIADAD") shouldBe expected
+      makeCmd("AAIADAD") shouldBe expected
     }
   }
 
@@ -65,10 +65,10 @@ final class DslSpec extends Spec {
     }
   }
 
-  "makeRoute(A)" should {
+  "makeCmd(A)" should {
     "Return Init(A(End()))" in {
       val expected = Init(A(End()))
-      makeRoute("A") shouldBe expected
+      makeCmd("A") shouldBe expected
     }
   }
 
