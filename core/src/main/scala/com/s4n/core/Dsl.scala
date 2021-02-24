@@ -111,7 +111,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(previous.lens(_.y.value).modify(_ + (-1)), South)
+        Position(previous.lens(_.y.value).modify(_ - 1), South)
       case I(_, _) => Position(previous, West)
       case D(_, _) => Position(previous, East)
       case _       => Position(previous, South)
@@ -135,7 +135,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(previous.lens(_.x.value).modify(_ + (-1)), East)
+        Position(previous.lens(_.x.value).modify(_ - 1), East)
       case I(_, _) => Position(previous, South)
       case D(_, _) => Position(previous, North)
       case _       => Position(previous, East)
