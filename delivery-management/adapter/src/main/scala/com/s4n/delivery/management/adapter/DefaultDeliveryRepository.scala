@@ -17,7 +17,7 @@ final class DefaultDeliveryRepository[F[_]: Async: Files] private (
       .map(file =>
         Drone(
           file.name.value,
-          file.lines.map(line => makeRoute(line.value))
+          file.lines.map(line => makeCmd(line.value))
         )
       )
 }
