@@ -41,17 +41,17 @@ object Dsl {
 
   case class Drone(name: String, cmds: List[Cmd])
 
-  def makeRoute(route: String): Cmd =
-    Init(makeRouteR(route.toList.reverse)())
+  def makeCmd(route: String): Cmd =
+    Init(makeCmdR(route.toList.reverse)())
 
   @tailrec
-  private def makeRouteR(chars: List[Char])(route: Cmd = End()): Cmd =
+  private def makeCmdR(chars: List[Char])(route: Cmd = End()): Cmd =
     chars match {
       case h :: t =>
         h match {
-          case 'A' => makeRouteR(t)(A(route))
-          case 'I' => makeRouteR(t)(I(route))
-          case 'D' => makeRouteR(t)(D(route))
+          case 'A' => makeCmdR(t)(A(route))
+          case 'I' => makeCmdR(t)(I(route))
+          case 'D' => makeCmdR(t)(D(route))
           case _   => throw new RuntimeException("Invalid Char Input")
         }
       case Nil => route
