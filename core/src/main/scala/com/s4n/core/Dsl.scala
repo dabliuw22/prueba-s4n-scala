@@ -1,6 +1,6 @@
 package com.s4n.core
 
-import io.estatico.newtype.macros.newtype
+import monocle.macros.syntax.lens._
 
 import scala.annotation.tailrec
 
@@ -11,8 +11,8 @@ object Dsl {
   case object East extends Direction
   case object West extends Direction
 
-  @newtype case class X(value: Int)
-  @newtype case class Y(value: Int)
+  case class X(value: Int) extends AnyVal
+  case class Y(value: Int) extends AnyVal
 
   case class Coordinates(x: X = X(0), y: Y = Y(0))
 
@@ -99,7 +99,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(Coordinates(previous.x, Y(previous.y.value + 1)), North)
+        Position(previous.lens(_.y.value).modify(_ + 1), North)
       case I(_, _) => Position(previous, East)
       case D(_, _) => Position(previous, West)
       case _       => Position(previous, North)
@@ -111,7 +111,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(Coordinates(previous.x, Y(previous.y.value - 1)), South)
+        Position(previous.lens(_.y.value).modify(_ + (-1)), South)
       case I(_, _) => Position(previous, West)
       case D(_, _) => Position(previous, East)
       case _       => Position(previous, South)
@@ -123,7 +123,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(Coordinates(X(previous.x.value + 1), previous.y), West)
+        Position(previous.lens(_.x.value).modify(_ + 1), West)
       case I(_, _) => Position(previous, North)
       case D(_, _) => Position(previous, South)
       case _       => Position(previous, West)
@@ -135,7 +135,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(Coordinates(X(previous.x.value - 1), previous.y), East)
+        Position(previous.lens(_.x.value).modify(_ + (-1)), East)
       case I(_, _) => Position(previous, South)
       case D(_, _) => Position(previous, North)
       case _       => Position(previous, East)

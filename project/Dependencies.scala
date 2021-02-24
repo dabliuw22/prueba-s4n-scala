@@ -6,6 +6,8 @@ object Dependencies {
   def fs2(artifact: String): ModuleID = "co.fs2" %% artifact % "2.4.4"
   def refined(artifact: String): ModuleID = "eu.timepit" %% artifact % "0.9.13"
   def ciris(artifact: String): ModuleID = "is.cir" %% artifact % "1.0.4"
+  def monocle(artifact: String): ModuleID =
+    "com.github.julien-truffaut" %% artifact % "2.1.0"
   def log4cats(artifact: String): ModuleID =
     "io.chrisdavenport" %% artifact % "1.1.1"
   def scalaLog(artifact: String): ModuleID =

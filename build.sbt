@@ -71,7 +71,11 @@ lazy val core = (project in file("core"))
   .settings(
     name := "core",
     scalacOptions ++= options,
-    libraryDependencies += newType
+    libraryDependencies ++= Seq(
+      newType,
+      monocle("monocle-core"),
+      monocle("monocle-macro")
+    )
   )
   .dependsOn(test)
 
