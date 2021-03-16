@@ -1,6 +1,9 @@
 package com.s4n.core
 
-import monocle.macros.syntax.lens._
+import cats.syntax.option._
+import monocle.macros.GenIso
+import monocle.{Lens, Optional, Prism}
+import monocle.macros.{GenLens, GenPrism}
 
 import scala.annotation.tailrec
 
@@ -11,33 +14,77 @@ object Dsl {
   case object East extends Direction
   case object West extends Direction
 
-  case class X(value: Int) extends AnyVal
-  case class Y(value: Int) extends AnyVal
+  final case class X(value: Int = 0) extends AnyVal
+  object X {
+    val value: Lens[X, Int] = GenLens[X](_.value)
+  }
+  final case class Y(value: Int = 0) extends AnyVal
+  object Y {
+    val value: Lens[Y, Int] = GenLens[Y](_.value)
+  }
 
-  case class Coordinates(x: X = X(0), y: Y = Y(0))
+  case class Coordinates(x: X = X(), y: Y = Y())
+  object Coordinates {
+    val x: Lens[Coordinates, Int] =
+      GenLens[Coordinates](_.x) composeLens X.value
+    val y: Lens[Coordinates, Int] =
+      GenLens[Coordinates](_.y) composeLens Y.value
+  }
 
-  case class Position(
+  final case class Position(
     coordinates: Coordinates = Coordinates(),
     direction: Direction = North
   )
+  object Position {
+    val coordinates: Lens[Position, Coordinates] =
+      GenLens[Position](_.coordinates)
+    val direction: Lens[Position, Direction] =
+      GenLens[Position](_.direction)
+  }
 
   sealed trait Cmd
-  case class Init(next: Cmd) extends Cmd
-  case class End(
+  final case class Init(next: Cmd) extends Cmd
+  object Init {
+    val next: Prism[Cmd, Cmd] =
+      GenPrism[Cmd, Init] composeIso GenIso[Init, Cmd]
+  }
+  final case class End(
     previous: Option[Position] = None
   ) extends Cmd
-  case class A(
+  object End {
+    val previous: Prism[Cmd, Option[Position]] =
+      GenPrism[Cmd, End] composeIso GenIso[End, Option[Position]]
+  }
+  final case class A(
     next: Cmd,
     previous: Option[Position] = None
   ) extends Cmd
-  case class I(
+  object A {
+    private val a: Prism[Cmd, A] = GenPrism[Cmd, A]
+    val next: Optional[Cmd, Cmd] = a composeLens GenLens[A](_.next)
+    val previous: Optional[Cmd, Option[Position]] =
+      a composeLens GenLens[A](_.previous)
+  }
+  final case class I(
     next: Cmd,
     previous: Option[Position] = None
   ) extends Cmd
-  case class D(
+  object I {
+    private val i: Prism[Cmd, I] = GenPrism[Cmd, I]
+    val next: Optional[Cmd, Cmd] = i composeLens GenLens[I](_.next)
+    val previous: Optional[Cmd, Option[Position]] =
+      i composeLens GenLens[I](_.previous)
+  }
+  final case class D(
     next: Cmd,
     previous: Option[Position] = None
   ) extends Cmd
+  object D {
+    private val d: Prism[Cmd, D] = GenPrism[Cmd, D]
+    val next: Optional[Cmd, Cmd] = d composeLens GenLens[D](_.next)
+    val previous: Optional[Cmd, Option[Position]] =
+      d composeLens GenLens[D](_.previous)
+  }
 
   case class Drone(name: String, cmds: List[Cmd])
 
@@ -68,15 +115,15 @@ object Dsl {
     }
 
   private def update(
-    action: Cmd,
+    cmd: Cmd,
     previous: Position
   ): Cmd =
-    action match {
-      case A(next, _) => A(next, Some(previous))
-      case I(next, _) => I(next, Some(previous))
-      case D(next, _) => D(next, Some(previous))
-      case End(_)     => End(Some(previous))
-      case _          => action
+    cmd match {
+      case a: A     => A.previous.set(previous.some)(a)
+      case i: I     => I.previous.set(previous.some)(i)
+      case d: D     => D.previous.set(previous.some)(d)
+      case end: End => End.previous.set(previous.some)(end)
+      case _        => cmd
     }
 
   private def calculate(
@@ -99,7 +146,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(previous.lens(_.y.value).modify(_ + 1), North)
+        Position(Coordinates.y.modify(_ + 1)(previous), North)
       case I(_, _) => Position(previous, East)
       case D(_, _) => Position(previous, West)
       case _       => Position(previous, North)
@@ -111,7 +158,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(previous.lens(_.y.value).modify(_ - 1), South)
+        Position(Coordinates.y.modify(_ - 1)(previous), South)
       case I(_, _) => Position(previous, West)
       case D(_, _) => Position(previous, East)
       case _       => Position(previous, South)
@@ -123,7 +170,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(previous.lens(_.x.value).modify(_ + 1), West)
+        Position(Coordinates.x.modify(_ + 1)(previous), West)
       case I(_, _) => Position(previous, North)
       case D(_, _) => Position(previous, South)
       case _       => Position(previous, West)
@@ -135,7 +182,7 @@ object Dsl {
   ): Position =
     action match {
       case A(_, _) =>
-        Position(previous.lens(_.x.value).modify(_ - 1), East)
+        Position(Coordinates.x.modify(_ - 1)(previous), East)
       case I(_, _) => Position(previous, South)
       case D(_, _) => Position(previous, North)
       case _       => Position(previous, East)
