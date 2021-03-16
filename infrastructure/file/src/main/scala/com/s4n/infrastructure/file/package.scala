@@ -7,7 +7,6 @@ import cats.syntax.flatMap._
 import cats.syntax.functor._
 import cats.effect.{Blocker, Concurrent, ContextShift, Resource, Sync}
 import io.estatico.newtype.macros.newtype
-import simulacrum.typeclass
 import fs2.io.file._
 import fs2.text._
 import fs2.Stream
@@ -19,7 +18,6 @@ package object file {
   @newtype case class FileName(value: String)
   case class File(name: FileName, lines: List[Line])
 
-  @typeclass
   trait Files[F[_]] {
     def create(directory: Directory): F[Path]
     def write(directory: Directory, file: File): Stream[F, Unit]
@@ -27,6 +25,8 @@ package object file {
   }
 
   object Files {
+    def apply[F[_]: Files]: Files[F] = implicitly
+
     def makeResource[F[_]: Sync: ContextShift: Concurrent](
       blocker: Blocker
     ): Resource[F, Files[F]] =
