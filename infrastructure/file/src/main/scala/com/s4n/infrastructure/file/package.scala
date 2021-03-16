@@ -16,7 +16,7 @@ package object file {
   @newtype case class Directory(path: String)
   @newtype case class Line(value: String)
   @newtype case class FileName(value: String)
-  case class File(name: FileName, lines: List[Line])
+  final case class File(name: FileName, lines: List[Line])
 
   trait Files[F[_]] {
     def create(directory: Directory): F[Path]
