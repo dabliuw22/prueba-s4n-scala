@@ -23,7 +23,7 @@ object Dsl {
     val value: Lens[Y, Int] = GenLens[Y](_.value)
   }
 
-  case class Coordinates(x: X = X(), y: Y = Y())
+  final case class Coordinates(x: X = X(), y: Y = Y())
   object Coordinates {
     val x: Lens[Coordinates, Int] =
       GenLens[Coordinates](_.x) composeLens X.value
@@ -61,7 +61,8 @@ object Dsl {
   ) extends Cmd
   object A {
     private val a: Prism[Cmd, A] = GenPrism[Cmd, A]
-    val next: Optional[Cmd, Cmd] = a composeLens GenLens[A](_.next)
+    val next: Optional[Cmd, Cmd] =
+      a composeLens GenLens[A](_.next)
     val previous: Optional[Cmd, Option[Position]] =
       a composeLens GenLens[A](_.previous)
   }
@@ -71,7 +72,8 @@ object Dsl {
   ) extends Cmd
   object I {
     private val i: Prism[Cmd, I] = GenPrism[Cmd, I]
-    val next: Optional[Cmd, Cmd] = i composeLens GenLens[I](_.next)
+    val next: Optional[Cmd, Cmd] =
+      i composeLens GenLens[I](_.next)
     val previous: Optional[Cmd, Option[Position]] =
       i composeLens GenLens[I](_.previous)
   }
@@ -81,12 +83,13 @@ object Dsl {
   ) extends Cmd
   object D {
     private val d: Prism[Cmd, D] = GenPrism[Cmd, D]
-    val next: Optional[Cmd, Cmd] = d composeLens GenLens[D](_.next)
+    val next: Optional[Cmd, Cmd] =
+      d composeLens GenLens[D](_.next)
     val previous: Optional[Cmd, Option[Position]] =
       d composeLens GenLens[D](_.previous)
   }
 
-  case class Drone(name: String, cmds: List[Cmd])
+  final case class Drone(name: String, cmds: List[Cmd])
 
   def makeCmd(route: String): Cmd =
     Init(makeCmdR(route.toList.reverse)())
