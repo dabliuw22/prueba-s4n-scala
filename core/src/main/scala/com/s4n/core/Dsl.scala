@@ -148,11 +148,11 @@ object Dsl {
     previous: Coordinates
   ): Position =
     action match {
-      case A(_, _) =>
+      case _: A =>
         Position(Coordinates.y.modify(_ + 1)(previous), North)
-      case I(_, _) => Position(previous, East)
-      case D(_, _) => Position(previous, West)
-      case _       => Position(previous, North)
+      case _: I => Position(previous, East)
+      case _: D => Position(previous, West)
+      case _    => Position(previous, North)
     }
 
   private def fromSouth(
@@ -160,11 +160,11 @@ object Dsl {
     previous: Coordinates
   ): Position =
     action match {
-      case A(_, _) =>
+      case _: A =>
         Position(Coordinates.y.modify(_ - 1)(previous), South)
-      case I(_, _) => Position(previous, West)
-      case D(_, _) => Position(previous, East)
-      case _       => Position(previous, South)
+      case _: I => Position(previous, West)
+      case _: D => Position(previous, East)
+      case _    => Position(previous, South)
     }
 
   private def fromWest(
@@ -172,11 +172,11 @@ object Dsl {
     previous: Coordinates
   ): Position =
     action match {
-      case A(_, _) =>
+      case _: A =>
         Position(Coordinates.x.modify(_ + 1)(previous), West)
-      case I(_, _) => Position(previous, North)
-      case D(_, _) => Position(previous, South)
-      case _       => Position(previous, West)
+      case _: I => Position(previous, North)
+      case _: D => Position(previous, South)
+      case _    => Position(previous, West)
     }
 
   private def fromEast(
@@ -184,10 +184,10 @@ object Dsl {
     previous: Coordinates
   ): Position =
     action match {
-      case A(_, _) =>
+      case _: A =>
         Position(Coordinates.x.modify(_ - 1)(previous), East)
-      case I(_, _) => Position(previous, South)
-      case D(_, _) => Position(previous, North)
-      case _       => Position(previous, East)
+      case _: I => Position(previous, South)
+      case _: D => Position(previous, North)
+      case _    => Position(previous, East)
     }
 }
