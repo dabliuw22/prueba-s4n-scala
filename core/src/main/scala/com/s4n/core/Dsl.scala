@@ -1,9 +1,8 @@
 package com.s4n.core
 
 import cats.syntax.option._
-import monocle.macros.GenIso
 import monocle.{Lens, Optional, Prism}
-import monocle.macros.{GenLens, GenPrism}
+import monocle.macros.{GenIso, GenLens, GenPrism}
 
 import scala.annotation.tailrec
 
