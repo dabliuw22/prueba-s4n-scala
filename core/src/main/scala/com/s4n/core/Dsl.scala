@@ -1,7 +1,7 @@
 package com.s4n.core
 
 import cats.syntax.option._
-import monocle.{Lens, Optional, Prism}
+import monocle.{Iso, Lens, Optional, Prism}
 import monocle.macros.{GenIso, GenLens, GenPrism}
 
 import scala.annotation.tailrec
@@ -15,19 +15,19 @@ object Dsl {
 
   final case class X(value: Int = 0) extends AnyVal
   object X {
-    val value: Lens[X, Int] = GenLens[X](_.value)
+    val value: Iso[X, Int] = GenIso[X, Int]
   }
   final case class Y(value: Int = 0) extends AnyVal
   object Y {
-    val value: Lens[Y, Int] = GenLens[Y](_.value)
+    val value: Iso[Y, Int] = GenIso[Y, Int]
   }
 
   final case class Coordinates(x: X = X(), y: Y = Y())
   object Coordinates {
     val x: Lens[Coordinates, Int] =
-      GenLens[Coordinates](_.x) composeLens X.value
+      GenLens[Coordinates](_.x) composeIso X.value
     val y: Lens[Coordinates, Int] =
-      GenLens[Coordinates](_.y) composeLens Y.value
+      GenLens[Coordinates](_.y) composeIso Y.value
   }
 
   final case class Position(
