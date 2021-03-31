@@ -16,10 +16,13 @@ final class DefaultLocationRepositorySpec extends EffectSpec {
       implicit val files = success
       val effect = for {
         location <- DefaultLocationRepository.make[IO](config)
-        result <- location
-                    .save(Drone("test-drone", List(Init(A(A(End()))))))
-                    .compile
-                    .toList
+        result <-
+          location
+            .save(
+              Drone("test-drone", List(Init.make(A.make(A.make(End.make())))))
+            )
+            .compile
+            .toList
         status = result.size == 1
       } yield assert(status)
       effect.unsafeToFuture()
@@ -31,11 +34,18 @@ final class DefaultLocationRepositorySpec extends EffectSpec {
       implicit val files = success
       val effect = for {
         location <- DefaultLocationRepository.make[IO](config)
-        result <-
-          location
-            .save(Drone("test-drone", List(Init(A(A(End()))), Init(A(End())))))
-            .compile
-            .toList
+        result <- location
+                    .save(
+                      Drone(
+                        "test-drone",
+                        List(
+                          Init.make(A.make(A.make(End.make()))),
+                          Init.make(A.make(End.make()))
+                        )
+                      )
+                    )
+                    .compile
+                    .toList
         status = result.size == 2
       } yield assert(status == true)
       effect.unsafeToFuture()
@@ -47,12 +57,15 @@ final class DefaultLocationRepositorySpec extends EffectSpec {
       implicit val files = failure
       val effect = for {
         location <- DefaultLocationRepository.make[IO](config)
-        status <- location
-                    .save(Drone("test-drone", List(Init(A(A(End()))))))
-                    .map(_ => false)
-                    .compile
-                    .toList
-                    .handleErrorWith(_ => IO(true))
+        status <-
+          location
+            .save(
+              Drone("test-drone", List(Init.make(A.make(A.make(End.make())))))
+            )
+            .map(_ => false)
+            .compile
+            .toList
+            .handleErrorWith(_ => IO(true))
       } yield assert(status == true)
       effect.unsafeToFuture()
     }
