@@ -13,50 +13,62 @@ object Dsl {
   case object East extends Direction
   case object West extends Direction
 
-  final case class X(value: Int = 0) extends AnyVal
+  final case class X private (value: Int) extends AnyVal
   object X {
     val value: Iso[X, Int] = GenIso[X, Int]
+    def make(value: Int = 0): X = X(value)
   }
-  final case class Y(value: Int = 0) extends AnyVal
+  final case class Y private (value: Int) extends AnyVal
   object Y {
     val value: Iso[Y, Int] = GenIso[Y, Int]
+    def make(value: Int = 0): Y = Y(value)
   }
 
-  final case class Coordinates(x: X = X(), y: Y = Y())
+  final case class Coordinates private (x: X, y: Y)
   object Coordinates {
     val x: Lens[Coordinates, Int] =
       GenLens[Coordinates](_.x) composeIso X.value
     val y: Lens[Coordinates, Int] =
       GenLens[Coordinates](_.y) composeIso Y.value
+    def make(x: X = X.make(), y: Y = Y.make()): Coordinates =
+      Coordinates(x, y)
   }
 
-  final case class Position(
-    coordinates: Coordinates = Coordinates(),
-    direction: Direction = North
+  final case class Position private (
+    coordinates: Coordinates,
+    direction: Direction
   )
   object Position {
     val coordinates: Lens[Position, Coordinates] =
       GenLens[Position](_.coordinates)
     val direction: Lens[Position, Direction] =
       GenLens[Position](_.direction)
+    def make(
+      coordinates: Coordinates = Coordinates.make(),
+      direction: Direction = North
+    ): Position =
+      Position(coordinates, direction)
   }
 
   sealed trait Cmd
-  final case class Init(next: Cmd) extends Cmd
+  final case class Init private (next: Cmd) extends Cmd
   object Init {
     val next: Prism[Cmd, Cmd] =
       GenPrism[Cmd, Init] composeIso GenIso[Init, Cmd]
+    val make: Cmd => Cmd = next => Init(next)
   }
-  final case class End(
-    previous: Option[Position] = None
+  final case class End private (
+    previous: Option[Position]
   ) extends Cmd
   object End {
     val previous: Prism[Cmd, Option[Position]] =
       GenPrism[Cmd, End] composeIso GenIso[End, Option[Position]]
+    def make(previous: Option[Position] = None): Cmd =
+      End(previous)
   }
-  final case class A(
+  final case class A private (
     next: Cmd,
-    previous: Option[Position] = None
+    previous: Option[Position]
   ) extends Cmd
   object A {
     private val a: Prism[Cmd, A] = GenPrism[Cmd, A]
@@ -64,10 +76,12 @@ object Dsl {
       a composeLens GenLens[A](_.next)
     val previous: Optional[Cmd, Option[Position]] =
       a composeLens GenLens[A](_.previous)
+    def make(next: Cmd, previous: Option[Position] = None): Cmd =
+      A(next, previous)
   }
-  final case class I(
+  final case class I private (
     next: Cmd,
-    previous: Option[Position] = None
+    previous: Option[Position]
   ) extends Cmd
   object I {
     private val i: Prism[Cmd, I] = GenPrism[Cmd, I]
@@ -75,10 +89,12 @@ object Dsl {
       i composeLens GenLens[I](_.next)
     val previous: Optional[Cmd, Option[Position]] =
       i composeLens GenLens[I](_.previous)
+    def make(next: Cmd, previous: Option[Position] = None): Cmd =
+      I(next, previous)
   }
-  final case class D(
+  final case class D private (
     next: Cmd,
-    previous: Option[Position] = None
+    previous: Option[Position]
   ) extends Cmd
   object D {
     private val d: Prism[Cmd, D] = GenPrism[Cmd, D]
@@ -86,6 +102,8 @@ object Dsl {
       d composeLens GenLens[D](_.next)
     val previous: Optional[Cmd, Option[Position]] =
       d composeLens GenLens[D](_.previous)
+    def make(next: Cmd, previous: Option[Position] = None): Cmd =
+      D(next, previous)
   }
 
   final case class Drone(name: String, cmds: List[Cmd])
@@ -94,13 +112,13 @@ object Dsl {
     Init(makeCmdR(route.toList.reverse)())
 
   @tailrec
-  private def makeCmdR(chars: List[Char])(route: Cmd = End()): Cmd =
+  private def makeCmdR(chars: List[Char])(route: Cmd = End.make()): Cmd =
     chars match {
       case h :: t =>
         h match {
-          case 'A' => makeCmdR(t)(A(route))
-          case 'I' => makeCmdR(t)(I(route))
-          case 'D' => makeCmdR(t)(D(route))
+          case 'A' => makeCmdR(t)(A.make(route))
+          case 'I' => makeCmdR(t)(I.make(route))
+          case 'D' => makeCmdR(t)(D.make(route))
           case _   => throw new RuntimeException("Invalid Char Input")
         }
       case Nil => route
@@ -109,7 +127,7 @@ object Dsl {
   @tailrec
   def eval(action: Cmd): Position =
     action match {
-      case Init(n)     => eval(update(n, Position()))
+      case Init(n)     => eval(update(n, Position.make()))
       case a @ A(n, p) => eval(update(n, calculate(a, p.get)))
       case i @ I(n, p) => eval(update(n, calculate(i, p.get)))
       case d @ D(n, p) => eval(update(n, calculate(d, p.get)))
