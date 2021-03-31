@@ -12,10 +12,13 @@ class DefaultLocationServiceSpec extends EffectSpec {
     "Saved One Position Successfully" in {
       val effect = for {
         location <- DefaultLocationService.make[IO](success(()))
-        result <- location
-                    .save(Drone("test-drone", List(Init(A(A(End()))))))
-                    .compile
-                    .toList
+        result <-
+          location
+            .save(
+              Drone("test-drone", List(Init.make(A.make(A.make(End.make())))))
+            )
+            .compile
+            .toList
         status = result.size == 1
       } yield assert(status)
       effect.unsafeToFuture()
@@ -26,11 +29,18 @@ class DefaultLocationServiceSpec extends EffectSpec {
     "Saved Two Position Successfully" in {
       val effect = for {
         location <- DefaultLocationService.make[IO](success((), ()))
-        result <-
-          location
-            .save(Drone("test-drone", List(Init(A(A(End()))), Init(A(End())))))
-            .compile
-            .toList
+        result <- location
+                    .save(
+                      Drone(
+                        "test-drone",
+                        List(
+                          Init.make(A.make(A.make(End.make()))),
+                          Init.make(A.make(End.make()))
+                        )
+                      )
+                    )
+                    .compile
+                    .toList
         status = result.size == 2
       } yield assert(status)
       effect.unsafeToFuture()
