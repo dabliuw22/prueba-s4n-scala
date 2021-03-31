@@ -17,7 +17,7 @@ final class DefaultDeliveryRepositorySpec extends EffectSpec {
       val effect = for {
         location <- DefaultDeliveryRepository.make[IO](config)
         result <- location.findAll.compile.toList
-        routes = List(Init(A(End())))
+        routes = List(Init.make(A.make(End.make())))
       } yield assertResult(Drone("test.txt", routes))(result.head)
       effect.unsafeToFuture()
     }
